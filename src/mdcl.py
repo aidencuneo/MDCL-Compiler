@@ -504,6 +504,7 @@ def compile(text, scope=0, canEcho=True, inline=False):
             second = ' ' . join (line [index + 1:])
             compiled += 'range(' + first + ', ' + second + ')\n'
         elif len (line) > 1:
+            compiled += scope * ' '
             if (line [1] . startswith (sb)) and (line [1] . endswith (eb)):
                 echoable = True
                 first = line [0]
@@ -516,7 +517,6 @@ def compile(text, scope=0, canEcho=True, inline=False):
                     first = fVals [index]
                 if first in ('print' , 'echo'):
                     echoable = False
-                compiled += scope * ' '
                 c = ''
                 for __ in iterate(range(1, (len(line)))):
                     c += line [__] + ' '
@@ -524,7 +524,7 @@ def compile(text, scope=0, canEcho=True, inline=False):
                 compiled += "print(" + c + ", end='')\n" if (canEcho and not (__ in keywords) and echoable) else c
                 compiled += '\n'
             elif line [0] == 'ret':
-                compiled += scope * ' ' + 'return '
+                compiled += 'return '
                 for __ in iterate(range(1, (len(line)))):
                     if type (line [__]) . __name__ == 'str':
                         compiled += line [__] + ' '
@@ -534,7 +534,7 @@ def compile(text, scope=0, canEcho=True, inline=False):
                 compiled += "print(" + c + ", end='')\n" if canEcho and __ not in keywords else c
                 compiled = compiled . rstrip ()
             else:
-                c = compile(' ' . join (line) , 0 , False , True)
+                c = compile(' ' . join (line) , 0 , False , True) . strip ()
                 compiled += "print(" + c + ", end='')\n" if canEcho and __ not in keywords else c
         elif len (line) == 1:
             for __ in iterate(line):
@@ -546,11 +546,21 @@ def compile(text, scope=0, canEcho=True, inline=False):
 fKeys = ('write' , 'exit' , 'string')
 fVals = ('print' , 'sys.exit' , 'str')
 keywords = ('break' , 'ret')
-
+compiled = ''
 this = argv(1)
+if not this:
+    print('Input file not given.', end='')
+    print(sys.exit(), end='')
+this = os . path . abspath (this)
+cachedir = '\\' . join (this . split ('\\') [:-1]) + '\\__mdclcache__'
+cachefile = cachedir + '\\' + '.' . join (os . path . basename (this) . split ('.') [:-1]) + '.py'
+if not os . path . isdir (cachedir):
+    _ = os . mkdir (cachedir)
 code = readfile(this)
-
-pcd = '\\'.join(argv(0).split('\\')[:-1]) + '\\' + '__pcd__.py'
+execScript = os . path . abspath (argv(0))
+pcd = '\\' . join (execScript . split ('\\') [:-1]) + '\\__pcd__.py'
 compiled = readfile(pcd) + '\n\n'
-compiled += compile(code) + '\n'
-writefile('.' . join (this . split ('.') [:-1]) + '.py' , compiled . strip () + '\n')
+compiled += compile(code)
+compiled = compiled . strip () + '\n'
+_ = writefile(cachefile , compiled)
+_ = exec(compiled)
