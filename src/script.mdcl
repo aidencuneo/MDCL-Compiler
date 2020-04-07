@@ -1,0 +1,6 @@
+for 1000 {
+    'The number is ';
+    write(#);
+    'The number divided by 2 is ';
+    write(#/2);
+}
