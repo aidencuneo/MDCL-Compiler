@@ -107,6 +107,7 @@ compile : [text, scope=0, canEcho=True, inline=False] => {
                     start +: #;
                     index +: 1;
                 }
+                if !start do start : '_';
                 compiled +: start + ' = ';
                 c : '';
                 for index + 1 to (len(line)) do c +: line[#] + ' ';
@@ -287,24 +288,23 @@ compile : [text, scope=0, canEcho=True, inline=False] => {
 fKeys : ('write', 'exit', 'string');
 fVals : ('print', 'sys.exit', 'str');
 keywords : ('break', 'ret');
-compiled : '';
 
 this : argv(1);
 if !this {
-    'Input file not given.';
+    'Input file not given.\n';
     exit();
 }
 this : os.path.abspath(this);
 
-cachedir : '\\'.join(this.split('\\')[:-1]) + '\\__mdclcache__';
-cachefile : cachedir + '\\' + '.'.join(os.path.basename(this).split('.')[:-1]) + '.py';
+cachedir : os.path.abspath('/'.join(os.path.split(this)[:-1]) + '/__mdclcache__');
+cachefile : cachedir + '/' + os.path.splitext(os.path.basename(this))[0] + '.py';
 
 if !os.path.isdir(cachedir) do
     _:os.mkdir(cachedir);
 
 code : readfile(this);
 execScript : os.path.abspath(argv(0));
-pcd : '\\'.join(execScript.split('\\')[:-1]) + '\\__pcd__.py';
+pcd : '/'.join(os.path.split(execScript)[:-1]) + '/__pcd__.py';
 
 compiled : readfile(pcd) + '\n\n';
 compiled +: compile(code);
