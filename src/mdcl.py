@@ -373,6 +373,8 @@ def compile(text, scope=0, canEcho=True, inline=False):
                         break
                     start += __
                     index += 1
+                if not start:
+                    start = '_'
                 compiled += start + ' = '
                 c = ''
                 for __ in iterate(range(index + 1, (len(line)))):
@@ -546,22 +548,23 @@ def compile(text, scope=0, canEcho=True, inline=False):
 fKeys = ('write' , 'exit' , 'string')
 fVals = ('print' , 'sys.exit' , 'str')
 keywords = ('break' , 'ret')
-compiled = ''
 this = argv(1)
 if not this:
-    print('Input file not given.', end='')
+    print('Input file not given.\n', end='')
     print(sys.exit(), end='')
-
-this = os.path.abspath(this)
-cachedir = os.path.abspath('/'.join(os.path.split(this)[:-1]) + '/__mdclcache__')
-cachefile = cachedir + '/' + os.path.splitext(os.path.basename(this))[0] + '.py'
+this = os . path . abspath (this)
+cachedir = os . path . abspath ('/' . join (os . path . split (this) [:-1]) + '/__mdclcache__')
+cachefile = cachedir + '/' + os . path . splitext (os . path . basename (this)) [0] + '.py'
 if not os . path . isdir (cachedir):
     _ = os . mkdir (cachedir)
 code = readfile(this)
 execScript = os . path . abspath (argv(0))
-pcd = '/'.join(os.path.split(execScript)[:-1]) + '/__pcd__.py'
+pcd = '/' . join (os . path . split (execScript) [:-1]) + '/__pcd__.py'
 compiled = readfile(pcd) + '\n\n'
 compiled += compile(code)
 compiled = compiled . strip () + '\n'
 _ = writefile(cachefile , compiled)
-_ = exec(compiled)
+_ = sys . path . insert (0 , cachedir)
+print(os . path . splitext (os . path . basename (cachefile)) [0])
+sys.argv = sys . argv [1:]
+_ = exec('import ' + os . path . splitext (os . path . basename (cachefile)) [0])

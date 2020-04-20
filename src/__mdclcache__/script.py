@@ -5,9 +5,16 @@ First Commit was at: 1/1/2020.
 
 '''
 
+import datetime
+import os
 import re
 import sys
 import string
+import time
+import traceback as tb
+import types
+
+from pprint import pformat
 
 alphabet = string.letters if sys.version_info[0] < 3 else string.ascii_letters
 digits = string.digits
@@ -218,17 +225,15 @@ def post_tokenise(lst):
     return lst
 
 
-import ast
-import datetime
-import os
-import time
-import traceback as tb
-import types
-
-from pprint import pformat
-
-
 get_input = raw_input if sys.version_info[0] < 3 else input
+
+
+def clirun(cmd):
+    if isinstance(cmd, (list, tuple)):
+        cmd = ' '.join(cmd)
+    if isinstance(cmd, str):
+        return os.system(cmd)
+    return
 
 
 def pretty(value):
@@ -274,8 +279,5 @@ tokeniseFile = tokenise_file
 del tokenise_file
 
 
-for __ in iterate(100):
-    print('The number is ', end='')
-    print(__)
-    print('The number divided by 2 is ', end='')
-    print(__ / 2)
+for __ in iterate(10000):
+    print(__, end='')
